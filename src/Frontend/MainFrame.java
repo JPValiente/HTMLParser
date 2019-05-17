@@ -139,6 +139,11 @@ public class MainFrame extends javax.swing.JFrame {
         jButton6.setFocusable(false);
         jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton6);
 
         jMenu1.setText("File");
@@ -195,7 +200,11 @@ public class MainFrame extends javax.swing.JFrame {
         currentjText = (JTextArea) Tabs.getSelectedComponent();
     }//GEN-LAST:event_TabsStateChanged
 
-    public static JTextPane getTab(){
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        String text = currentjText.getText();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    public static JTextPane getPane(){
         return jTextPane1;
     }
 

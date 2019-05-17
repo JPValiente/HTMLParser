@@ -11,4 +11,11 @@ package Backend.MarioPaint;
  */
 public class HTMLPaint {
     
+    public static void startActions(){
+        
+    }
+    
+    public static void startPainting(){
+        
+    }
 }
