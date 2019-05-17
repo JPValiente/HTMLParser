@@ -46,7 +46,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="Tabs" pref="494" max="32767" attributes="0"/>
+              <Component id="Tabs" min="-2" pref="494" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane2" min="-2" pref="446" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -61,7 +61,7 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jScrollPane2" max="32767" attributes="0"/>
-                  <Component id="Tabs" pref="626" max="32767" attributes="0"/>
+                  <Component id="Tabs" min="-2" pref="626" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

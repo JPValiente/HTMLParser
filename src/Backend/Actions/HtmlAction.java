@@ -52,7 +52,22 @@ public class HtmlAction {
     }
     public static void executeActions(String texto){
        textPane = MainFrame.getPane();
+       
+       b(texto);
+       br();
+       i(texto);
+       br();
+       u(texto);
+       br();
+       strike(texto);
+       br();
+//       blink(texto);
+       br();
        p(align.center, texto);
+       sub(texto);
+       sup(texto);
+       br();
+       b("JEJEJEJE");
        
        
     }
@@ -71,13 +86,21 @@ public class HtmlAction {
         }
        
         try {
-            textPane.setParagraphAttributes(attribs, true);
+            doc.setParagraphAttributes(doc.getLength(),1,attribs, false);
             doc.insertString(doc.getLength(), "\n\n" + text, attribs);
-            textPane.setParagraphAttributes(attribs, false);
+
+            textPane.setParagraphAttributes(attribs, true);
         } 
         catch (BadLocationException e) {
             e.printStackTrace();
-        }   
+        } 
+    }
+    
+    public static void endp(){
+        StyledDocument doc = textPane.getStyledDocument();
+        SimpleAttributeSet attribs = new SimpleAttributeSet();
+        StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_LEFT);
+        doc.setParagraphAttributes(doc.getLength(),1,attribs, true);
     }
     
     public static void br(){
@@ -147,17 +170,17 @@ public class HtmlAction {
         }
     }
     
-    public static void blink(String text){
-        HTMLDocument doc = (HTMLDocument) textPane.getStyledDocument();
-        try {
-            doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),"<blink>Goodbye!</blink>");
-            //Colocar excepciones
-        } catch (BadLocationException ex) {
-            
-        } catch (IOException ex) {
-            
-        }
-    }
+//    public static void blink(String text){
+//        HTMLDocument doc=(HTMLDocument) textPane.getStyledDocument();
+//        try {
+//            doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),"<blink>"+text+"</blink>");
+//            //Colocar excepciones
+//        } catch (BadLocationException ex) {
+//            
+//        } catch (IOException ex) {
+//            
+//        }
+//    }
     
     public static void sub(String text){
         SimpleAttributeSet attributes = new SimpleAttributeSet();
