@@ -5,18 +5,20 @@
  */
 package Backend.Actions;
 
+import Backend.Objects.Tag;
 import Frontend.MainFrame;
-import java.awt.Color;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.html.HTMLDocument;
 
 /**
  *
@@ -24,6 +26,8 @@ import javax.swing.text.html.HTMLDocument;
  */
 public class HtmlAction {
     private static JTextPane textPane;
+    
+    private static List<Tag> tags = new ArrayList<>();
     public enum actions {
         PARAGRAPH,
         LINEJUMP,
@@ -50,27 +54,7 @@ public class HtmlAction {
         SETTAG,
         GOTO
     }
-    public static void executeActions(String texto){
-       textPane = MainFrame.getPane();
-       
-       b(texto);
-       br();
-       i(texto);
-       br();
-       u(texto);
-       br();
-       strike(texto);
-       br();
-//       blink(texto);
-       br();
-       p(align.center, texto);
-       sub(texto);
-       sup(texto);
-       br();
-       b("JEJEJEJE");
-       
-       
-    }
+    
     
     public static void p(align alineacion,String text){
         StyledDocument doc = textPane.getStyledDocument();
@@ -230,14 +214,114 @@ public class HtmlAction {
         StyledDocument doc = textPane.getStyledDocument();
         Style style = textPane.addStyle("Color Style", null);
         try {
-            text.replace("\n","");
-            text.replace("<br>", "    ");
-            text.replace("<p>", "    ");
+            text.replace("\n","\n\t");
             doc.insertString(doc.getLength(),text, style);
         } 
         catch (BadLocationException e) {
             e.printStackTrace();
         }   
+    }
+    
+    public static void ul(String type,List<String> items) throws BadLocationException{
+        StyledDocument doc = textPane.getStyledDocument();
+        Style style;
+        style = textPane.addStyle("BOLD",null);
+        if(type.equals("circle")){
+            for (String item : items) {
+                doc.insertString(doc.getLength(), "  ○  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        } else if(type.equals("disc")){
+            for (String item : items) {
+                doc.insertString(doc.getLength(), "  ●  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        } else if(type.equals("square")){
+            for (String item : items) {;
+                doc.insertString(doc.getLength(), "  ■  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        }
+        
+    }
+    
+    public static void executeActions(String texto){
+       textPane = MainFrame.getPane();
+        
+       
+    }
+    
+    public static void ol(String type,List<String> items) throws BadLocationException{
+        StyledDocument doc = textPane.getStyledDocument();
+        Style style;
+        style = textPane.addStyle("BOLD",null);
+        if(type.equals("1")){
+            for (String item : items) {
+                doc.insertString(doc.getLength(), "  1.  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        } else if(type.equals("a")){
+            for (String item : items) {
+                doc.insertString(doc.getLength(), "  a.  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        } else if(type.equals("A")){
+            for (String item : items) {;
+                doc.insertString(doc.getLength(), "  A.  ", style);
+                doc.insertString(doc.getLength(), item + "\n", style);
+            }
+        }
+        
+    }
+    
+    public static void insertTag(String tagId,int x, int y, String text){
+        tags.add(new Tag(tagId,x,y));
+        JLabel label = new JLabel(text);
+        label.setOpaque(true);
+        textPane.setCaretPosition(textPane.getDocument().getLength());
+        textPane.insertComponent(label);
+        label.addMouseListener(new MouseAdapter()
+            {
+                public void mouseClicked(MouseEvent evt)
+                {
+                    loadTag(tagId);
+                }
+            });
+        
+    }
+    
+    
+    public static void loadTag(String tagId){
+        Tag tag = searchTag(tagId);
+        String []t = textPane.getText().split("\n");
+	int position=0;
+	for(int index=0;index<t.length;index++){
+		if(index == tag.getY()-1)break;
+		if(t[index].length()!=0)
+		        position+=t[index].length();
+	}
+	textPane.setCaretPosition(position+tag.getY()-1);
+    }   
+    
+    
+    public static void printOnlyText(String text){
+        StyledDocument doc = textPane.getStyledDocument();
+        Style style = textPane.addStyle("Color Style", null);
+        try {
+            doc.insertString(doc.getLength(), "text", style);
+        } 
+        catch (BadLocationException e) {
+            e.printStackTrace();
+        }   
+    }
+    
+    public static Tag searchTag(String tagId){
+        for (Tag tag : tags) {
+            if(tag.getTagId().equals(tagId)){
+                return tag;
+            }
+        }
+        return null;
     }
     
     

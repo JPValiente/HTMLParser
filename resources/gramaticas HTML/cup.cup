@@ -1,0 +1,917 @@
+package Analizadores;
+
+import Logica.Acciones;
+import Objetos.Instruccion;
+import Objetos.Variable;
+import java_cup.runtime.*;
+import java_cup.runtime.XMLElement;
+import javax.swing.JTextArea;
+import java_cup.runtime.XMLElement;
+import ObjetosHTML.Atributos;
+import ObjetosHTML.Parametros;
+import java.util.ArrayList;
+import javax.swing.JTextPane;
+
+parser code {:
+
+
+
+	// Connect this parser to a scanner!
+	JTextPane area;
+	int valor=0;
+	Acciones acciones;
+
+
+	public parser2(AnalizadorLexicoHtml lex,JTextPane area) {
+		super(lex);
+		this.area=area;
+		acciones = new Acciones();
+	}
+
+
+
+        public void syntax_error(Symbol cur_token) {
+              System.out.println("OCURRIO UN ERROR SINTACTICO, FILA: " + cur_token.left + ", COLUMNA: " + cur_token.right+" TOKEN:"+cur_token);
+
+
+        }
+
+
+
+
+
+:}
+
+/* Terminals (tokens returned by the scanner). */
+terminal String
+BGCOLOR,TEXT,LINK,ALIGN,LEFT_,RIGHT_,JUSTIFIED,SIZE,FACE,COLOR,TYPE,CIRCLE,SQUARE,DISC,WIDTH,NAME,HREF,PORCENTAJE,IGUAL,COMILLA,DIAGONAL,NUMERAL,
+INICIO_HTML,FIN_HTML,INICIO_HEAD,FIN_HEAD,INICIO_TITLE,FIN_TITLE,BODY,START_,FIN_BODY,INICIO_CENTER,FIN_CENTER,CENTER,P,FIN_P,INICIO_B,FIN_B,INICIO_U,FIN_U,INICIO_I,FIN_I,INICIO_STRIKE,FIN_STRIKE,
+INICIO_BLINK,FIN_BLINK,INICIO_SUB,FIN_SUB,INICIO_SUP,FIN_SUP,FONT,FIN_FONT,UL,FIN_UL,INICIO_LI,OL,FIN_OL,INICIO_BR,INICIO_NOBR,FIN_NOBR,HR,INICIO_BLOCKQUOTE,FIN_BLOCKQUOTE,A,FIN_A,ANGULAR_ABIERTO,
+ANGULAR_CERRADO,I,MENOR_QUE_SIMB,MAYOR_QUE_SIMB,AMPERSAND_SIMB,A_TILDE,E_TILDE,I_TILDE,O_TILDE,U_TILDE,ENIE_MIN,ENIE_MAY,HEXADECIMAL,NUMEROS,IDD;
+
+
+/* Non-terminals */
+
+non terminal Object
+estructura,continuacion,titulo,texto,body,inicio_body,parametros_body,bgcolor,text,link,elementos,center,parrafo,parametros_p,alignp,direccionp,estilo_b,estilo_u,
+estilo_i,estilo_strike ,estilo_blink ,estilo_sub ,estilo_sup ,font,parametros_font,size,alignf,direccionf,face,color,lista_desordenada,parametros_ul,typeul,tipo,lista, lista_ordenada,parametros_ol,typeol,formaol,tipool,startt,br,nobr,hr,parametros_hr,width,tipo_width,sangria,enlaces,name,href,idd,texto2;
+
+/* The grammar */
+start with estructura;
+
+estructura ::= INICIO_HTML  continuacion:e1   FIN_HTML {:acciones.hacerAcciones((ArrayList<Atributos>)e1,area);:};
+continuacion ::= INICIO_HEAD FIN_HEAD body:e1 {:
+
+RESULT = e1;
+:}| INICIO_HEAD titulo:e1 FIN_HEAD body:e2 {:
+ArrayList<Atributos> atributos = (ArrayList<Atributos>) e2;
+atributos.add(0,(Atributos)e1);
+RESULT = atributos;
+:};
+
+titulo ::= INICIO_TITLE texto:e1 FIN_TITLE {:
+Atributos atr = new Atributos();
+atr.setTipoAccion("TITULO");
+atr.setTextoMandado(e1.toString());
+atr.setTitulo(e1.toString());
+RESULT = atr;
+:};
+
+
+texto ::= IDD:e1 {:RESULT = e1.toString();:}|
+BODY:e1 {:RESULT =e1.toString();:}|
+P:e1 {:RESULT =e1.toString();:}|
+FONT:e1 {:RESULT =e1.toString();:}
+|UL:e1 {:RESULT =e1.toString();:}
+|OL:e1 {:RESULT =e1.toString();:}
+|HR:e1 {:RESULT =e1.toString();:}
+|A:e1 {:RESULT =e1.toString();:}
+|BGCOLOR:e1 {:RESULT =e1.toString();:}
+|TEXT:e1 {:RESULT =e1.toString();:}
+|LINK:e1 {:RESULT =e1.toString();:}
+|ALIGN:e1 {:RESULT =e1.toString();:}
+|LEFT_:e1 {:RESULT =e1.toString();:}
+|RIGHT_:e1 {:RESULT =e1.toString();:}
+| JUSTIFIED:e1 {:RESULT =e1.toString();:}
+|SIZE:e1 {:RESULT =e1.toString();:}
+|FACE:e1 {:RESULT =e1.toString();:}
+|COLOR:e1 {:RESULT =e1.toString();:}
+|TYPE:e1 {:RESULT =e1.toString();:}
+|CIRCLE:e1 {:RESULT =e1.toString();:}
+|SQUARE:e1 {:RESULT =e1.toString();:}
+|DISC:e1 {:RESULT =e1.toString();:}
+|WIDTH:e1 {:RESULT =e1.toString();:}
+|NAME:e1 {:RESULT =e1.toString();:}
+|HREF:e1 {:RESULT =e1.toString();:}
+|PORCENTAJE {:RESULT ="%";:}
+|IGUAL {:RESULT ="=";:}
+|COMILLA {:RESULT ="\"";:}
+|DIAGONAL {:RESULT ="/";:}
+|NUMERAL {:RESULT ="#";:}
+|I:e1 {:RESULT =e1.toString();:}
+|ENIE_MAY {:RESULT = "Ñ";:}
+|ENIE_MIN {:RESULT = "ñ";:}
+|U_TILDE {:RESULT = "ú";:}
+|O_TILDE {:RESULT = "ó";:}
+|I_TILDE {:RESULT = "í";:}
+|E_TILDE {:RESULT = "é";:}
+|A_TILDE {:RESULT = "á";:}
+|AMPERSAND_SIMB {:RESULT = "&";:}
+|MENOR_QUE_SIMB {:RESULT = "<";:}
+|MAYOR_QUE_SIMB {:RESULT = ">";:}
+| INICIO_BR {:RESULT="\n";:}
+|texto:e1 IDD:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+| texto:e1 BODY:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 P:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 FONT:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 UL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 OL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 HR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 A:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 BGCOLOR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 TEXT:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 LINK:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 ALIGN:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 LEFT_:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 RIGHT_:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 JUSTIFIED:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 SIZE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 FACE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 COLOR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 TYPE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 CIRCLE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 SQUARE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 DISC:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 WIDTH:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 NAME:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 HREF:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1  PORCENTAJE:e2 {:RESULT = e1.toString()+" "+"%";:}
+|texto:e1 IGUAL{:RESULT = e1.toString()+" "+"=";:}
+|texto:e1 COMILLA {:RESULT = e1.toString()+" "+"\"";:}
+|texto:e1 DIAGONAL {:RESULT = e1.toString()+" "+"/";:}
+|texto:e1 NUMERAL {:RESULT = e1.toString()+" "+"#";:}
+|texto:e1 I:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto:e1 MAYOR_QUE_SIMB {:RESULT = e1.toString()+">";:}
+| texto:e1  MENOR_QUE_SIMB  {:RESULT = e1.toString()+"<";:}
+| texto:e1 AMPERSAND_SIMB {:RESULT = e1.toString()+"&";:}
+| texto:e1 A_TILDE {:RESULT = e1.toString()+"á";:}
+| texto:e1 E_TILDE {:RESULT = e1.toString()+"é";:}
+| texto:e1 I_TILDE {:RESULT = e1.toString()+"í";:}
+| texto:e1 O_TILDE {:RESULT = e1.toString()+"ó";:}
+| texto:e1 U_TILDE {:RESULT = e1.toString()+"ú";:}
+| texto:e1 ENIE_MIN {:RESULT = e1.toString()+"ñ";:}
+| texto:e1 ENIE_MAY {:RESULT = e1.toString()+"Ñ";:}
+| texto:e1 INICIO_BR {:RESULT = e1.toString()+"\n";:}
+| HEXADECIMAL:e1 {:RESULT =e1.toString();:}
+| texto:e1 HEXADECIMAL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|NUMEROS:e1 {:RESULT =e1.toString();:}
+|texto:e1 NUMEROS:e2 {:RESULT = e1.toString()+" "+e2.toString();:};
+
+texto2 ::= IDD:e1 {:RESULT = e1.toString();:}
+|BODY:e1 {:RESULT =e1.toString();:}
+|P:e1 {:RESULT =e1.toString();:}
+|FONT:e1 {:RESULT =e1.toString();:}
+|UL:e1 {:RESULT =e1.toString();:}
+|OL:e1 {:RESULT =e1.toString();:}
+|HR:e1 {:RESULT =e1.toString();:}
+|A:e1 {:RESULT =e1.toString();:}
+|BGCOLOR:e1 {:RESULT =e1.toString();:}
+|TEXT:e1 {:RESULT =e1.toString();:}
+|LINK:e1 {:RESULT =e1.toString();:}
+|ALIGN:e1 {:RESULT =e1.toString();:}
+|LEFT_:e1 {:RESULT =e1.toString();:}
+|RIGHT_:e1 {:RESULT =e1.toString();:}
+| JUSTIFIED:e1 {:RESULT =e1.toString();:}
+|SIZE:e1 {:RESULT =e1.toString();:}
+|FACE:e1 {:RESULT =e1.toString();:}
+|COLOR:e1 {:RESULT =e1.toString();:}
+|TYPE:e1 {:RESULT =e1.toString();:}
+|CIRCLE:e1 {:RESULT =e1.toString();:}
+|SQUARE:e1 {:RESULT =e1.toString();:}
+|DISC:e1 {:RESULT =e1.toString();:}
+|WIDTH:e1 {:RESULT =e1.toString();:}
+|NAME:e1 {:RESULT =e1.toString();:}
+|HREF:e1 {:RESULT =e1.toString();:}
+|PORCENTAJE {:RESULT ="%";:}
+|IGUAL {:RESULT ="=";:}
+|COMILLA {:RESULT ="\"";:}
+|DIAGONAL {:RESULT ="/";:}
+|NUMERAL {:RESULT ="#";:}
+|I:e1 {:RESULT =e1.toString();:}
+|ENIE_MAY {:RESULT = "Ñ";:}
+|ENIE_MIN {:RESULT = "ñ";:}
+|U_TILDE {:RESULT = "ú";:}
+|O_TILDE {:RESULT = "ó";:}
+|I_TILDE {:RESULT = "í";:}
+|E_TILDE {:RESULT = "é";:}
+|A_TILDE {:RESULT = "á";:}
+|AMPERSAND_SIMB {:RESULT = "&";:}
+|MENOR_QUE_SIMB {:RESULT = "<";:}
+|MAYOR_QUE_SIMB {:RESULT = ">";:}
+| br {:RESULT="";:}
+|texto2:e1 IDD:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+| texto2:e1 BODY:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 P:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 FONT:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 UL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 OL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 HR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 A:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 BGCOLOR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 TEXT:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 LINK:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 ALIGN:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 LEFT_:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 RIGHT_:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 JUSTIFIED:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 SIZE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 FACE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 COLOR:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 TYPE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 CIRCLE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 SQUARE:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 DISC:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 WIDTH:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 NAME:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 HREF:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1  PORCENTAJE:e2 {:RESULT = e1.toString()+" "+"%";:}
+|texto2:e1 IGUAL{:RESULT = e1.toString()+" "+"=";:}
+|texto2:e1 COMILLA {:RESULT = e1.toString()+" "+"\"";:}
+|texto2:e1 DIAGONAL {:RESULT = e1.toString()+" "+"/";:}
+|texto2:e1 NUMERAL {:RESULT = e1.toString()+" "+"#";:}
+|texto2:e1 I:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|texto2:e1 MAYOR_QUE_SIMB {:RESULT = e1.toString()+">";:}
+| texto2:e1  MENOR_QUE_SIMB  {:RESULT = e1.toString()+"<";:}
+| texto2:e1 AMPERSAND_SIMB {:RESULT = e1.toString()+"&";:}
+| texto2:e1 A_TILDE {:RESULT = e1.toString()+"á";:}
+| texto2:e1 E_TILDE {:RESULT = e1.toString()+"é";:}
+| texto2:e1 I_TILDE {:RESULT = e1.toString()+"í";:}
+| texto2:e1 O_TILDE {:RESULT = e1.toString()+"ó";:}
+| texto2:e1 U_TILDE {:RESULT = e1.toString()+"ú";:}
+| texto2:e1 ENIE_MIN {:RESULT = e1.toString()+"ñ";:}
+| texto2:e1 ENIE_MAY {:RESULT = e1.toString()+"Ñ";:}
+| texto2:e1 br {:RESULT = e1.toString();:}
+| HEXADECIMAL:e1 {:RESULT =e1.toString();:}
+| texto2:e1 HEXADECIMAL:e2 {:RESULT = e1.toString()+" "+e2.toString();:}
+|NUMEROS:e1 {:RESULT =e1.toString();:}
+|texto2:e1 NUMEROS:e2 {:RESULT = e1.toString()+" "+e2.toString();:};
+
+body ::= inicio_body:e1 elementos:e2 FIN_BODY {:
+ArrayList<Parametros> parametros = (ArrayList<Parametros>) e1;
+ArrayList<Atributos> atributos = (ArrayList<Atributos>)e2;
+acciones.unirAtributos(parametros,atributos,"BODY");
+RESULT = atributos;
+:};
+
+inicio_body ::= ANGULAR_ABIERTO BODY parametros_body:e1 ANGULAR_CERRADO{:
+ArrayList<Parametros> p = (ArrayList<Parametros>) e1;
+boolean bgcolor=false, text=false, link=false;
+for(int i=0;i<p.size();i++){
+if(p.get(i).getNombre().equals("BGCOLOR")){
+	if(bgcolor==false){
+		bgcolor=true;
+	}else{
+		System.out.println("PARAMETRO BGCOLOR REPETIDO");
+		p.remove(i);
+		i--;
+	}
+}else if(p.get(i).getNombre().equals("TEXT")){
+	if(text==false){
+		text=true;
+	}else{
+		System.out.println("PARAMETRO TEXT REPETIDO");
+		p.remove(i);
+		i--;
+	}
+
+}
+else if(p.get(i).getNombre().equals("LINK")){
+	if(link==false){
+		link=true;
+	}else{
+		System.out.println("PARAMETRO LINK REPETIDO");
+		p.remove(i);
+		i--;
+	}
+}
+
+}
+
+RESULT = p;
+:}|ANGULAR_ABIERTO BODY ANGULAR_CERRADO {:RESULT = new ArrayList<Parametros>();:};
+
+parametros_body ::= parametros_body:e1 bgcolor:e2 {:ArrayList<Parametros> p = (ArrayList<Parametros>)e1;ArrayList<Parametros> d = (ArrayList<Parametros>)e2; for(int i=0;i<d.size();i++){p.add(d.get(i));} RESULT = p;:}|parametros_body:e1 text:e2 {:ArrayList<Parametros> p = (ArrayList<Parametros>)e1;ArrayList<Parametros> d = (ArrayList<Parametros>)e2; for(int i=0;i<d.size();i++){p.add(d.get(i));} RESULT = p;
+:}
+|parametros_body:e1 link:e2 {:ArrayList<Parametros> p = (ArrayList<Parametros>)e1;ArrayList<Parametros> d = (ArrayList<Parametros>)e2; for(int i=0;i<d.size();i++){p.add(d.get(i));} RESULT = p; :} |bgcolor:e1 {:RESULT = e1;:}| text:e1 {:RESULT = e1;:}|link:e1 {:RESULT = e1;:};
+
+bgcolor ::= BGCOLOR IGUAL COMILLA HEXADECIMAL:e1 COMILLA {:
+ArrayList<Parametros> p = new ArrayList<>(); p.add(new Parametros("BGCOLOR",e1.toString()));
+RESULT = p;:};
+
+text ::= TEXT IGUAL COMILLA HEXADECIMAL:e1 COMILLA
+{:ArrayList<Parametros> p = new ArrayList<>(); p.add(new Parametros("TEXT",e1.toString()));
+RESULT = p;
+:};
+
+link ::= LINK IGUAL COMILLA HEXADECIMAL:e1 COMILLA {:
+ArrayList<Parametros> p = new ArrayList<>(); p.add(new Parametros("LINK",e1.toString()));
+RESULT = p;
+:};
+
+
+elementos ::= elementos:e1 parrafo:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+| parrafo:e1 {:RESULT = e1;:}
+|elementos:e1 estilo_b:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}|
+estilo_b:e1 {:RESULT = e1;:}|
+elementos:e1 estilo_u:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|estilo_u:e1 {:RESULT = e1;:}
+|elementos:e1 estilo_i:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|estilo_i:e1 {:RESULT = e1;:}
+|elementos:e1 estilo_strike:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|estilo_strike:e1 {:RESULT = e1;:}
+|elementos:e1 estilo_blink:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|estilo_blink:e1 {:RESULT = e1;:}
+|elementos:e1  estilo_sub:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|  estilo_sub:e1 {:RESULT = e1;:}
+| elementos:e1 estilo_sup:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|estilo_sup:e1 {:RESULT = e1;:}
+|elementos:e1 font:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|font:e1 {:RESULT = e1;:}
+|elementos:e1 center:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|center:e1 {:RESULT = e1;:}
+|elementos:e1 sangria:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+| sangria:e1 {:RESULT = e1;:}
+|elementos:e1 nobr:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|nobr:e1 {:RESULT = e1;:}
+|elementos:e1 hr:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|hr:e1 {:RESULT = e1;:}
+|elementos:e1 enlaces:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+|enlaces:e1 {:RESULT = e1;:}
+|elementos:e1 lista_desordenada:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+| lista_desordenada:e1 {:RESULT = e1;:}
+| elementos:e1 lista_ordenada:e2 {:
+ArrayList<Atributos> atr1,atr2;
+atr1 = (ArrayList<Atributos>)e1;
+atr2 = (ArrayList<Atributos>)e2;
+
+acciones.unirArrayListAtributos(atr1,atr2);
+RESULT = atr1;
+:}
+| lista_ordenada:e1 {:RESULT = e1;:};
+
+
+center::= INICIO_CENTER texto:e1 FIN_CENTER {:
+ArrayList<Atributos> m = new ArrayList(); Atributos a = new Atributos();
+a.setTextoMandado(e1.toString()); a.setCenter(true);a.setTipoAccion("CENTER");
+m.add(a);
+RESULT = m;
+:}
+| INICIO_CENTER elementos:e1 FIN_CENTER {:
+ArrayList<Atributos> atributos = new ArrayList<>();
+if(e1!=null){
+atributos = (ArrayList<Atributos>) e1;
+}
+acciones.cambiarCenterAtributos(atributos);
+RESULT = atributos;
+:};
+
+parrafo::= ANGULAR_ABIERTO P parametros_p:e1 ANGULAR_CERRADO texto:e2 FIN_P {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+if(e1!=null){
+parametros.add((Parametros)e1);
+}
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"PARRAFO");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:}
+
+|ANGULAR_ABIERTO P parametros_p:e1 ANGULAR_CERRADO elementos:e2 FIN_P {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+ArrayList<Atributos> atributos = new ArrayList<>();
+if(e1!=null){
+parametros.add((Parametros)e1);
+}
+if(e2!=null){
+atributos = (ArrayList<Atributos>) e2;
+}
+acciones.unirAtributos(parametros,atributos,"PARRAFO");
+RESULT = atributos;
+:}
+| ANGULAR_ABIERTO P ANGULAR_CERRADO texto:e2 FIN_P {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"PARRAFO");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:}
+|ANGULAR_ABIERTO P ANGULAR_CERRADO elementos:e2 FIN_P {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+ArrayList<Atributos> atributos = new ArrayList<>();
+if(e2!=null){
+atributos = (ArrayList<Atributos>) e2;
+}
+acciones.unirAtributos(parametros,atributos,"PARRAFO");
+RESULT = atributos;
+:};
+
+parametros_p ::= alignp:e1 {:RESULT = new Parametros("ALIGN",e1.toString());:};
+alignp ::= ALIGN IGUAL COMILLA direccionp:e1 COMILLA {:RESULT = e1.toString();:};
+direccionp ::= LEFT_ {:RESULT = "LEFT";:}
+|RIGHT_ {:RESULT = "RIGHT";:}
+|CENTER {:RESULT = "CENTER";:}
+|JUSTIFIED {:RESULT = "JUSTIFIED";:};
+
+estilo_b ::= INICIO_B texto:e1 FIN_B {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setB(true);atributos.add(a); RESULT = atributos;:};
+estilo_u ::= INICIO_U texto:e1 FIN_U {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setU(true);atributos.add(a); RESULT = atributos;:};
+estilo_i ::= INICIO_I texto:e1 FIN_I {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setI(true);atributos.add(a); RESULT = atributos;:};
+estilo_strike ::= INICIO_STRIKE texto:e1 FIN_STRIKE {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setStrike(true);atributos.add(a); RESULT = atributos;:};
+estilo_blink ::= INICIO_BLINK texto:e1 FIN_BLINK {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setBlink(true);atributos.add(a); RESULT = atributos;:};
+estilo_sub ::= INICIO_SUB texto:e1 FIN_SUB {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setSub(true);atributos.add(a); RESULT = atributos;:};
+estilo_sup ::= INICIO_SUP texto:e1 FIN_SUP {: ArrayList<Atributos> atributos = new ArrayList<>(); Atributos a = new Atributos(); a.setTextoMandado(e1.toString()); a.setSup(true);atributos.add(a); RESULT = atributos;:};
+
+font ::= ANGULAR_ABIERTO FONT parametros_font:e1 ANGULAR_CERRADO texto:e2 FIN_FONT {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+if(e1!=null){
+parametros = (ArrayList<Parametros>)e1;
+}
+
+boolean color=false, size=false, face=false , align=false;
+for(int i=0;i<parametros.size();i++){
+if(parametros.get(i).getNombre().equals("SIZE")){
+	if(size==false){
+		size=true;
+	}else{
+		System.out.println("PARAMETRO SIZE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("ALIGN")){
+	if(align==false){
+		align=true;
+	}else{
+		System.out.println("PARAMETRO ALIGN REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+
+}
+else if(parametros.get(i).getNombre().equals("FACE")){
+	if(face==false){
+		face=true;
+	}else{
+		System.out.println("PARAMETRO FACE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("COLOR")){
+	if(color==false){
+		color=true;
+	}else{
+		System.out.println("PARAMETRO COLOR REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}
+
+}
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"FONT");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:}
+|ANGULAR_ABIERTO FONT parametros_font:e1 ANGULAR_CERRADO elementos:e2 FIN_FONT {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+ArrayList<Atributos> atributos = new ArrayList<>();
+if(e1!=null){
+parametros = (ArrayList<Parametros>)e1;
+}
+if(e2!=null){
+atributos = (ArrayList<Atributos>) e2;
+}
+
+boolean color=false, size=false, face=false , align=false;
+for(int i=0;i<parametros.size();i++){
+if(parametros.get(i).getNombre().equals("SIZE")){
+	if(size==false){
+		size=true;
+	}else{
+		System.out.println("PARAMETRO SIZE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("ALIGN")){
+	if(align==false){
+		align=true;
+	}else{
+		System.out.println("PARAMETRO ALIGN REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+
+}
+else if(parametros.get(i).getNombre().equals("FACE")){
+	if(face==false){
+		face=true;
+	}else{
+		System.out.println("PARAMETRO FACE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("COLOR")){
+	if(color==false){
+		color=true;
+	}else{
+		System.out.println("PARAMETRO COLOR REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}
+
+}
+
+acciones.unirAtributos(parametros,atributos,"FONT" );
+RESULT = atributos;
+:} |
+ANGULAR_ABIERTO FONT ANGULAR_CERRADO texto:e2 FIN_FONT {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"FONT");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:} |
+ANGULAR_ABIERTO FONT ANGULAR_CERRADO elementos:e2 FIN_FONT {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+ArrayList<Atributos> atributos = new ArrayList<>();
+if(e2!=null){
+atributos = (ArrayList<Atributos>) e2;
+}
+acciones.unirAtributos(parametros,atributos,"FONT" );
+RESULT = atributos;
+:};
+
+
+parametros_font ::= parametros_font:e1 size:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:}|
+parametros_font:e1 alignf:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:}|
+parametros_font:e1 face:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:} |
+parametros_font:e1 color:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:} |
+size:e1 {:RESULT = e1;:}
+| alignf:e1 {:RESULT = e1;:}
+| face:e1 {:RESULT = e1;:}
+| color:e1 {:RESULT = e1;:};
+size ::= SIZE IGUAL COMILLA NUMEROS:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>(); Parametros p = new Parametros("SIZE",e1.toString()); parametros.add(p); RESULT = parametros;:};
+alignf ::=  ALIGN IGUAL COMILLA direccionf:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>(); Parametros p = new Parametros("ALIGN",e1.toString()); parametros.add(p); RESULT = parametros;:};
+direccionf ::= LEFT_ {:RESULT= "LEFT";:}|RIGHT_ {:RESULT = "RIGHT";:}|CENTER {:RESULT = "CENTER";:};
+face ::= FACE IGUAL COMILLA IDD:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>(); Parametros p = new Parametros("FACE",e1.toString());  parametros.add(p); RESULT = parametros;:};
+color ::= COLOR IGUAL COMILLA HEXADECIMAL:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>(); Parametros p = new Parametros("COLOR",e1.toString());  parametros.add(p); RESULT = parametros;:};
+
+
+
+
+lista_desordenada ::= ANGULAR_ABIERTO UL parametros_ul:e1 ANGULAR_CERRADO lista:e2 FIN_UL {:
+ArrayList<Atributos> atr = new ArrayList<>();
+Atributos aux = new Atributos(); aux.setElementosLista((ArrayList<String>)e2); aux.setTipoAccion("LISTA UL");
+atr.add(aux);
+ArrayList<Parametros> parametros = new ArrayList<>();
+parametros.add((Parametros)e1);
+acciones.unirAtributos(parametros,atr,"LISTA UL");
+RESULT = atr;
+:} |ANGULAR_ABIERTO UL ANGULAR_CERRADO lista:e2 FIN_UL {:
+ArrayList<Atributos> atr = new ArrayList<>();
+Atributos aux = new Atributos(); aux.setElementosLista((ArrayList<String>)e2); aux.setTipoAccion("LISTA UL");
+atr.add(aux);
+ArrayList<Parametros> parametros = new ArrayList<>();
+parametros.add(new Parametros("TYPE","CIRCLE"));
+acciones.unirAtributos(parametros,atr,"LISTA UL");
+RESULT = atr;
+:};
+
+parametros_ul ::= typeul:e1 {:RESULT = e1;:};
+typeul ::= TYPE IGUAL COMILLA tipo:e1 COMILLA {:RESULT = new Parametros("TYPE",e1.toString());:};
+tipo ::= CIRCLE:e1 {:RESULT = "CIRCLE";:}
+|SQUARE:e1 {:RESULT = "SQUARE";:}
+|DISC:e1 {:RESULT = "DISC";:};
+lista ::= lista:e1 INICIO_LI texto:e2 {:
+ArrayList<String> a,b;
+a = (ArrayList<String>) e1;
+b = new ArrayList<>();
+b.add(e2.toString());
+
+acciones.unirDosArreglosString(a,b);
+RESULT = a;
+:}
+| INICIO_LI texto:e1 {:ArrayList<String> texto = new ArrayList<>();
+texto.add(e1.toString());
+RESULT = texto;
+:};
+
+lista_ordenada ::= ANGULAR_ABIERTO OL parametros_ol:e1 ANGULAR_CERRADO lista:e2 FIN_OL {:
+ArrayList<Atributos> atr = new ArrayList<>();
+Atributos aux = new Atributos(); aux.setElementosLista((ArrayList<String>)e2); aux.setTipoAccion("LISTA OL");
+atr.add(aux);
+ArrayList<Parametros> parametros = new ArrayList<>();
+parametros =(ArrayList<Parametros>) e1;
+boolean start=false, type=false;
+for(int i=0;i<parametros.size();i++){
+if(parametros.get(i).getNombre().equals("START")){
+	if(start==false){
+		start=true;
+	}else{
+		System.out.println("PARAMETRO START REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("TYPE")){
+	if(type==false){
+		type=true;
+	}else{
+		System.out.println("PARAMETRO TYPE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}
+}
+
+
+acciones.unirAtributos(parametros,atr,"LISTA OL");
+RESULT = atr;
+
+:}
+|ANGULAR_ABIERTO OL ANGULAR_CERRADO lista:e2 FIN_OL {:
+ArrayList<Atributos> atr = new ArrayList<>();
+Atributos aux = new Atributos(); aux.setElementosLista((ArrayList<String>)e2); aux.setTipoAccion("LISTA OL");
+atr.add(aux);
+ArrayList<Parametros> parametros = new ArrayList<>();
+parametros.add(new Parametros("TYPE","I"));
+parametros.add(new Parametros("START","1"));
+acciones.unirAtributos(parametros,atr,"LISTA OL");
+RESULT = atr;
+:};
+
+parametros_ol ::= parametros_ol:e1 typeol:e2 {:
+ArrayList<Parametros> a,b;
+a = (ArrayList<Parametros>)e1;
+b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+:}
+| parametros_ol:e1 startt:e2 {:
+ArrayList<Parametros> a,b;
+a = (ArrayList<Parametros>)e1;
+b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+:}
+| typeol:e1 {:RESULT = e1;:}
+| startt:e1 {:RESULT = e1;:};
+typeol ::= TYPE IGUAL COMILLA formaol:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>();
+
+parametros.add(new Parametros("TYPE",e1.toString()));
+RESULT = parametros;
+
+:};
+formaol::= I:e1 {:RESULT = e1.toString();:}|A:e1 {:RESULT = e1.toString();:};
+tipool ::= NUMEROS:e1 {:RESULT = e1.toString();:}|IDD:e1 {:String a = e1.toString(); char caracter  = a.charAt(0);
+	String mandar = "";
+	mandar += caracter;
+	RESULT = mandar;:};
+startt ::= START_ IGUAL COMILLA tipool:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>();
+parametros.add(new Parametros("START",e1.toString()));
+RESULT = parametros;
+:};
+
+br::=  INICIO_BR {:ArrayList<Atributos> atr = new ArrayList<>();
+Atributos a = new Atributos();
+a.setTipoAccion("BR");
+atr.add(a);
+RESULT = atr;
+:};
+
+nobr ::= INICIO_NOBR texto2:e1 FIN_NOBR {:
+ArrayList<Atributos> m = new ArrayList(); Atributos a = new Atributos();
+a.setTextoMandado(e1.toString());a.setTipoAccion("NOBR");
+m.add(a);
+RESULT = m;
+:};
+
+hr ::= ANGULAR_ABIERTO HR parametros_hr:e1 ANGULAR_CERRADO {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+if(e1!=null){
+parametros = (ArrayList<Parametros>)e1;
+}
+
+
+boolean align=false, width=false, size=false;
+for(int i=0;i<parametros.size();i++){
+if(parametros.get(i).getNombre().equals("SIZE")){
+	if(size==false){
+		size=true;
+	}else{
+		System.out.println("PARAMETRO SIZE REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}else if(parametros.get(i).getNombre().equals("ALIGN")){
+	if(align==false){
+		align=true;
+	}else{
+		System.out.println("PARAMETRO ALIGN REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+
+}
+else if(parametros.get(i).getNombre().equals("WIDTH")){
+	if(width==false){
+		width=true;
+	}else{
+		System.out.println("PARAMETRO WIDTH REPETIDO");
+		parametros.remove(i);
+		i--;
+	}
+}
+
+}
+
+Atributos atributos = acciones.convertirParametroAtributo(parametros,"","HR");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:} | ANGULAR_ABIERTO HR ANGULAR_CERRADO {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+parametros.add(new Parametros("SIZE","100"));
+parametros.add(new Parametros("WIDTH","12"));
+parametros.add(new Parametros("ALIGN","CENTER"));
+
+Atributos atributos = acciones.convertirParametroAtributo(parametros,"","HR");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:};
+parametros_hr ::= parametros_hr:e1 alignf:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:}|parametros_hr:e1 width:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:}|parametros_hr:e1 size:e2 {:
+ArrayList<Parametros> a = (ArrayList<Parametros>)e1;
+ArrayList<Parametros> b = (ArrayList<Parametros>)e2;
+acciones.unirDosArrayListParametros(a,b);
+RESULT = a;
+
+:}|alignf:e1 {:RESULT = e1;:} |width:e1 {:RESULT = e1;:}|size:e1 {:RESULT = e1;:};
+width ::= WIDTH IGUAL COMILLA tipo_width:e1 COMILLA {:ArrayList<Parametros> parametros = new ArrayList<>(); Parametros p = new Parametros("WIDTH",e1.toString()); parametros.add(p);RESULT = parametros;:};
+tipo_width ::= NUMEROS:e1 {:RESULT = e1.toString();:}| NUMEROS:e1 PORCENTAJE {:RESULT = e1.toString();:};
+
+sangria::= INICIO_BLOCKQUOTE texto:e1 FIN_BLOCKQUOTE  {:
+ArrayList<Atributos> m = new ArrayList(); Atributos a = new Atributos();
+a.setTextoMandado(e1.toString()); a.setSangria(true);a.setTipoAccion("BLOCKQUOTE");
+m.add(a);
+RESULT = m;
+:};
+
+enlaces ::= ANGULAR_ABIERTO A name:e1 ANGULAR_CERRADO texto:e2 FIN_A {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+Parametros p = new Parametros("NAME",e1.toString()); parametros.add(p);
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"A NAME");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:}| ANGULAR_ABIERTO A href:e1 ANGULAR_CERRADO texto:e2 FIN_A  {:
+ArrayList<Parametros> parametros = new ArrayList<>();
+Parametros p = new Parametros("HREF",e1.toString()); parametros.add(p);
+Atributos atributos = acciones.convertirParametroAtributo(parametros,e2.toString(),"A HREF");
+ArrayList<Atributos> m = new ArrayList(); m.add(atributos);
+RESULT = m;
+:};
+name ::= NAME IGUAL COMILLA texto:e1 COMILLA {:RESULT = e1.toString();:};
+href ::= HREF IGUAL COMILLA NUMERAL texto:e1 COMILLA {:RESULT = e1.toString();:};

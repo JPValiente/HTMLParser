@@ -13,9 +13,9 @@ public class Variable {
     private int id;
     private String name;
     private String type;
-    private String value;
+    private Object value;
     
-    public Variable(int id, String name, String type, String value){
+    public Variable(int id, String name, String type, Object value){
         this.id = id;
         this.name = name;
         this.type = type;
@@ -34,11 +34,11 @@ public class Variable {
         return type;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
     
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 }

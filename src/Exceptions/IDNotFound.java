@@ -5,6 +5,9 @@
  */
 package Exceptions;
 
+import Backend.Objects.ErrorI;
+import Frontend.MainFrame;
+
 /**
  *
  * @author anclenius
@@ -12,5 +15,6 @@ package Exceptions;
 public class IDNotFound extends RuntimeException{
     public IDNotFound(String nombre){
         super("El identificador " + nombre + " no existe en la tabla de simbolos");
+        ErrorI.addError(new ErrorI("El identificador " + nombre + " no existe en la tabla de simbolos",MainFrame.currentFile,'c'));
     }
 }

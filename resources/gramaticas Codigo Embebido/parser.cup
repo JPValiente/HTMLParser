@@ -1,0 +1,214 @@
+package Parser.HTML;
+
+import java_cup.runtime.*;
+import Frontend.MainFrame;
+
+
+parser code {:
+	// Connect this parser to a scanner!
+
+
+	public parserHTML(Analizador_HTML lex) {
+		super(lex);
+	}
+
+        public void syntax_error(Symbol cur_token) {
+					System.out.println("Error Sintactico en linea "+(cur_token.left)+", columna "+(cur_token.right)+" Con el token: "+(cur_token.value)+"\n");
+					ErrorI.addError(new ErrorI((cur_token.left),(cur_token.right),"El token " + cur_token.value + " no esta reconocido en la gramatica sintactica de HTML",MainFrame.currentFile,'b'));
+
+				}
+:}
+
+/* Terminals (tokens returned by the scanner). */
+terminal Object       OHTML,CHTML,OHEAD,CHEAD,APERTURA,CIERRE,DIAGONAL,BODY,SIZE,FACE,UL,OL,LI,PARAGRAPH,TEXT,ALIGN,WIDTH,BGCOLOR,FONT,HR,HREF,
+											CP,CFONT,IGUAL,CCERRADO,BLACK,OLIVE,TEAL,RED,BLUE,MAROON,NAVY,GRAY,LIME,FUCHSIA,GREEN,WHITE,PURPLE,SILVER,YELLOW,AQUA,LEFT,RIGHT,
+											CENTER,JUSTIFIED,CIRCLE,SQUARE,DISC,OREF,CREF,OCENTER,CCENTER,OBOLD,CBOLD,OSUBRA,CSUBRA,OITALIC,CITALIC,OSTRIKE,CSTRIKE,OBLINK,CBLINK,
+											OSUB,CSUB,OSUP,CSUP,BR,ONOBR,CNOBR,OBLOCKQUOTE,CBLOCKQUOTE,NAME,NUMERO,PORCENTAJE,COMILLA,TIPO,HEXADECIMAL,TEXTO,TAG,LT,GT,AMP,AACUTE,EACUTE,
+											IACUTE,OACUTE,UACUTE,NTILDEMAY,NTILDEMIN,START,SIGNO_GATO,OTITLE,CTITLE,CABIERTO,LINK,TYPE,COLOR,CBODY,COL,CUL,PAR,BLANKSPACE,APOSTROFE;
+
+/* Non-terminals */
+non terminal Object       s0,s1,initHTML,finHTML,initHead,finHead,s2,color,s3,body,opParrafo,alineacion,title,body1,asd,
+													initTitle,finTitle,textito,opcionesFont,ul,opcionesUl,ol,opcionesHr,tipoWidth,listado,gangan,
+													entrBody,restBody,newText,impBody,impBody2,restBody1,restBody2,restBody3,restBody4,restBody5;
+
+/* Precedences */
+
+
+
+/* The grammar */
+
+
+start with s0;
+//Inicio de la gramatica
+
+//Apertura con HTML
+s0 ::=  initHTML s1 s2 finHTML;
+initHTML ::= OHTML;
+initHTML ::= ; //Imprimir que esto falta apertura
+finHTML ::= CHTML;
+finHTML ::= ; //Imprimir que falta cerradura
+
+//Head
+s1 ::= initHead finHead;
+s1 ::= initHead title finHead;
+initHead ::= OHEAD;
+initHead ::= ; //Imprimir que esto falta apertura
+finHead ::= CHEAD;
+finHead ::= ; //Imprimir que falta cerradura
+title ::= initTitle newText finTitle;
+initTitle ::= OTITLE;
+initTitle ::= ; //Imprimir que esto falta apertura
+finTitle ::= CTITLE;
+finTitle ::= ; //Imprimir que falta cerradura
+
+
+//BODY
+s2 ::= ;
+s2 ::= APERTURA BODY impBody;
+impBody ::= s3 CIERRE impBody2;
+impBody ::= CIERRE impBody2;
+impBody2 ::= body1 CBODY;
+impBody2 ::= body1;
+
+
+
+
+
+//Imprimir que esto falta apertura
+
+
+//Opciones de bodyaacute
+s3 ::= s3 CABIERTO BGCOLOR IGUAL COMILLA color COMILLA CCERRADO; //Esto deberia cambiar el parametro del color
+s3 ::= s3 CABIERTO TEXT IGUAL COMILLA color COMILLA CCERRADO; //Igual para esto
+s3 ::= s3 CABIERTO LINK IGUAL COMILLA color COMILLA CCERRADO; //Lo mismo para esto
+s3 ::= CABIERTO BGCOLOR IGUAL COMILLA color COMILLA CCERRADO; //Esto deberia cambiar el parametro del color
+s3 ::= CABIERTO TEXT IGUAL COMILLA color COMILLA CCERRADO; //Igual para esto
+s3 ::= CABIERTO LINK IGUAL COMILLA color COMILLA CCERRADO; //Lo mismo para esto
+//Interior del body
+
+body1 ::= body;
+body1 ::= ;
+body ::= body1 gangan entrBody gangan;
+
+gangan ::= APOSTROFE;
+gangan ::= ;
+
+entrBody ::= restBody1;
+entrBody ::= OCENTER textito CCENTER;
+entrBody ::= OBOLD textito CBOLD;
+entrBody ::= OITALIC textito CITALIC;
+entrBody ::= OSTRIKE textito CSTRIKE;
+entrBody ::= OBLINK textito CBLINK;
+entrBody ::= OSUBRA textito CSUBRA;
+entrBody ::= OSUB textito CSUB;
+entrBody ::= OSUP textito CSUP;
+entrBody ::= BR;
+entrBody ::= PAR;
+entrBody ::= ONOBR textito CNOBR;
+entrBody ::= OBLOCKQUOTE textito CBLOCKQUOTE;
+
+
+restBody1 ::= APERTURA restBody5;
+restBody5 ::= restBody;
+restBody5 ::= restBody4;
+restBody ::= DIAGONAL BODY CIERRE;
+restBody ::= PARAGRAPH opParrafo CIERRE textito CP ;
+restBody ::= OREF NAME IGUAL COMILLA TAG COMILLA CIERRE textito CREF;
+restBody ::= OREF HREF IGUAL COMILLA SIGNO_GATO TAG COMILLA CIERRE textito CREF;
+restBody ::= FONT opcionesFont CIERRE textito CFONT ;
+restBody ::= UL ul CIERRE listado CUL;
+restBody ::= HR opcionesHr CIERRE;
+restBody ::= OL ol CIERRE listado COL;
+
+//restBody2 ::= APERTURA restBody4;
+
+restBody4 ::= DIAGONAL restBody3;
+restBody3 ::= PARAGRAPH CIERRE;
+restBody3 ::= FONT CIERRE;
+restBody3 ::= UL CIERRE;
+restBody3 ::= OL CIERRE;
+
+
+listado ::= listado LI TAG;
+listado ::= ;
+
+
+opcionesHr ::= opcionesHr CABIERTO ALIGN IGUAL COMILLA alineacion COMILLA CCERRADO;
+opcionesHr ::= opcionesHr CABIERTO WIDTH IGUAL COMILLA tipoWidth COMILLA CCERRADO;
+opcionesHr ::= opcionesHr CABIERTO SIZE IGUAL COMILLA NUMERO COMILLA CCERRADO;
+opcionesHr ::= ;
+
+tipoWidth ::= NUMERO;
+tipoWidth ::= PORCENTAJE;
+
+
+ol ::= ol CABIERTO TYPE IGUAL COMILLA TIPO COMILLA CCERRADO;
+ol ::= ol CABIERTO TYPE IGUAL COMILLA OREF COMILLA CCERRADO;
+ol ::= ol CABIERTO START IGUAL COMILLA NUMERO COMILLA CCERRADO;
+ol ::= ;
+
+ul ::= ul CABIERTO TYPE IGUAL COMILLA opcionesUl COMILLA CCERRADO;
+ul ::= ;
+
+
+
+opcionesUl ::= CIRCLE;
+opcionesUl ::= SQUARE;
+opcionesUl ::= DISC;
+
+
+
+
+opcionesFont ::= opcionesFont CABIERTO SIZE IGUAL COMILLA NUMERO COMILLA CCERRADO;
+opcionesFont ::= opcionesFont CABIERTO ALIGN IGUAL COMILLA alineacion COMILLA CCERRADO;
+opcionesFont ::= opcionesFont CABIERTO FACE IGUAL COMILLA newText COMILLA CCERRADO;
+opcionesFont ::= opcionesFont CABIERTO COLOR IGUAL COMILLA color COMILLA CCERRADO;
+opcionesFont ::= ;
+
+
+opParrafo ::= CABIERTO ALIGN IGUAL COMILLA alineacion COMILLA CCERRADO;
+opParrafo ::= ;
+
+alineacion ::= LEFT;
+alineacion ::= RIGHT;
+alineacion ::= CENTER;
+alineacion ::= JUSTIFIED;
+
+
+//COLORES PREDEFINIDOS RETORNAR LOS HEXADEXIMALES DE LOS COLORES
+color ::= BLACK {:RESULT = "";:};
+color ::= OLIVE {:RESULT = "";:};
+color ::= TEAL {:RESULT = "";:};
+color ::= RED {:RESULT = "";:};
+color ::= BLUE {:RESULT = "";:};
+color ::= MAROON {:RESULT = "";:};
+color ::= NAVY {:RESULT = "";:};
+color ::= GRAY {:RESULT = "";:};
+color ::= LIME {:RESULT = "";:};
+color ::= FUCHSIA {:RESULT = "";:};
+color ::= GREEN {:RESULT = "";:};
+color ::= WHITE {:RESULT = "";:};
+color ::= PURPLE {:RESULT = "";:};
+color ::= SILVER {:RESULT = "";:};
+color ::= YELLOW {:RESULT = "";:};
+color ::= AQUA {:RESULT = "";:};
+color ::= HEXADECIMAL {:RESULT = "";:};
+
+//TEXTO
+
+textito ::= body1;
+textito ::= newText;
+textito ::= textito AACUTE;
+textito ::= textito EACUTE;
+textito ::= textito IACUTE;
+textito ::= textito OACUTE;
+textito ::= textito UACUTE;
+textito ::= textito NTILDEMAY;
+textito ::= textito NTILDEMIN;
+textito ::= textito LT;
+textito ::= textito GT;
+textito ::= textito AMP;
+
+newText ::= newText TEXTO;
+newText ::= TEXTO;
+newText ::= TAG;
